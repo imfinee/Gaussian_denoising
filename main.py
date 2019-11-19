@@ -28,8 +28,6 @@ def denoiser_train(denoiser, lr):
 def denoiser_test(denoiser):
 
     noisy_eval_files = glob('./data/test/noisy/*.png')
-#    n = [int(i) for i in map(lambda x: x.split('/')[-1].split('.png')[0], noisy_eval_files)]
-#    noisy_eval_files = [x for (y, x) in sorted(zip(n, noisy_eval_files))]
     noisy_eval_files = sorted(noisy_eval_files)
     eval_files = glob('./data/test/original/*.png')
     eval_files = sorted(eval_files)
@@ -44,32 +42,6 @@ def main(_):
     if not os.path.exists(args.test_dir):
         os.makedirs(args.test_dir)
 
-    lr = args.lr * np.ones([args.epoch])
-    lr[30:] = lr[0] / 10.0
-    if args.use_gpu:
-        # added to control the gpu memory
-        print("GPU\n")
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
-        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
-            model = denoiser(sess)
-            if args.phase == 'train':
-                denoiser_train(model, lr=lr)
-            elif args.phase == 'test':
-                denoiser_test(model)
-            else:
-                print('[!]Unknown phase')
-                exit(0)
-    else:
-        print("CPU\n")
-        with tf.Session() as sess:
-            model = denoiser(sess)
-            if args.phase == 'train':
-                denoiser_train(model, lr=lr)
-            elif args.phase == 'test':
-                denoiser_test(model)
-            else:
-                print('[!]Unknown phase')
-                exit(0)
 
 def test():
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
